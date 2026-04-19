@@ -1,0 +1,40 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+langchain-openai>=0.1.0
+langchain-elasticsearch
+langchain>=0.1.0
+langgraph
+langsmith
+python-dotenv
+langchain-community
+langchain-text-splitters
+openai>=1.0.0
+langchain_mcp_adapters
+langgraph-checkpoint-sqlite
+wikipedia-mcp
+
+# MySQL checkpointer (프로덕션) — AIOMySQLSaver(비동기) 사용
+langgraph-checkpoint-mysql[pymysql]
+pymysql
+aiomysql
+
+# SQLAlchemy ORM + Alembic 마이그레이션
+sqlalchemy
+alembic
+greenlet
+
+# JWT 인증 (SessionMiddleware 대체)
+python-jose[cryptography]
+
+# 비밀번호 해시 (bcrypt 직접 사용 — passlib 4.x 호환성 이슈로 passlib 미사용)
+bcrypt
+
+# 테스트
+pytest
+pytest-asyncio
+httpx
+
+# S3 업로드
+boto3

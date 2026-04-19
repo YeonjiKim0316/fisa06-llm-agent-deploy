@@ -1,0 +1,11 @@
+.env
+
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+/data/*
+CLAUDE.md
+/.claude/
+/.pytest_cache/

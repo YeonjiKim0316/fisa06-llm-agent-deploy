@@ -1,0 +1,61 @@
+# docker compose down api && docker compose up --build -d api
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.0
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.3.0
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  api:
+    build: .
+    container_name: fastapi_llm_agent
+    ports:
+      - "8000:8000"
+    environment:
+      # ── 공통 ────────────────────────────────────────────
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY}
+      - TAVILY_API_KEY=${TAVILY_API_KEY}
+      # ── DB 백엔드 (sqlite | mysql) ───────────────────────
+      - DB_BACKEND=${DB_BACKEND:-sqlite}
+      # ── RDS MySQL (DB_BACKEND=mysql 일 때만 필요) ─────────
+      - MYSQL_USER=${MYSQL_USER:-}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+      - MYSQL_HOST=${MYSQL_HOST:-}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_SCHEMA=${MYSQL_SCHEMA:-}
+      # ── JWT 인증 ─────────────────────────────────────────
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret-change-in-prod}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - JWT_EXPIRE_MINUTES=${JWT_EXPIRE_MINUTES:-1440}
+      # ── S3 정적 파일 ──────────────────────────────────────
+      - STATIC_BASE_URL=${STATIC_BASE_URL:-/static}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+      - AWS_REGION=${AWS_REGION:-ap-northeast-2}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME:-}
+    volumes:
+      - .:/app   # 개발 시 코드 마운트 (프로덕션에서는 제거)
+    depends_on:
+      - elasticsearch
+
+volumes:
+  esdata:
